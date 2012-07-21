@@ -5,14 +5,15 @@ package Ledger::Command;
 use strict;
 use warnings;
 use Moo;
-use MooX::Types::MooseLike;
+use MooX::Types::MooseLike::Base qw(:all);
+use Sub::Quote qw(quote_sub);
 
 # usage: ledger [options] COMMAND [ACCT REGEX]... [-- [PAYEE REGEX]...]
 
 has command => (
     is      => 'ro',
     isa     => Str,
-    default => 'ledger',
+    default => quote_sub q{ 'ledger' },
 );
 
 #Basic options:
