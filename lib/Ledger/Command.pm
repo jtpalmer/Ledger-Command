@@ -1,6 +1,6 @@
 package Ledger::Command;
 
-# ABSTRACT: Ledger wrapper
+# ABSTRACT: Wrapper class for the ledger command line utility
 
 use strict;
 use warnings;
