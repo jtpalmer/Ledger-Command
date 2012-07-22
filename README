@@ -1,0 +1,25 @@
+NAME
+    Ledger::Command - Wrapper class for the ledger command line utility
+
+VERSION
+    version 0.000001
+
+SYNOPSIS
+        use Ledger::Command;
+        my $ledger = Ledger::Command->new('/usr/local/bin/ledger');
+        $ledger->file('your-ledger.dat');
+        my $balance = $ledger->balance(account_regex => '^Assets');
+
+SEE ALSO
+    *   Ledger <http://www.newartisans.com/software/ledger.html>
+
+AUTHOR
+    Jeffrey T. Palmer <jtpalmer@cpan.org>
+
+COPYRIGHT AND LICENSE
+    This software is Copyright (c) 2012 by Jeffrey T. Palmer.
+
+    This is free software, licensed under:
+
+      The (three-clause) BSD License
+
