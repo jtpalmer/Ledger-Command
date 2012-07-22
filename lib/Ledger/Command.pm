@@ -7,6 +7,8 @@ use warnings;
 use Moo;
 use MooX::Types::MooseLike::Base qw(:all);
 use Sub::Quote qw(quote_sub);
+use Carp qw(croak);
+use IPC::Cmd qw( can_run run );
 
 # usage: ledger [options] COMMAND [ACCT REGEX]... [-- [PAYEE REGEX]...]
 
@@ -338,16 +340,42 @@ has gain => (
 #  balance  [REGEXP]...   show balance totals for matching accounts
 sub balance {
     my $self = shift;
+
+    my $cmd = $self->_build_command( 'balance', @_ );
+
+    my $buffer;
+
+    my ( $success, $error_message, $full_buf, $stdout_buf, $stderr_buf )
+        = run( command => $cmd, buffer => \$buffer );
+
+    croak $error_message unless $success;
+
+    my %balance;
+
+    my @lines = split /[\r\n]+/, $buffer;
+
+    for my $line (@lines) {
+        $line =~ s/^\s+//;
+        $line =~ s/\s+$//;
+
+        my ( $bal, $account ) = split /\s+/, $line;
+
+        warn "WARN: $line\n";
+
+        $balance{$account} = $bal;
+    }
+
+    return \%balance;
 }
 
 #  register [REGEXP]...   show register of matching transactions
 sub register {
-    my $self = shift;
+    my ( $self, %args ) = @_;
 }
 
 #  print    [REGEXP]...   print all matching entries
 sub print {
-    my $self = shift;
+    my ( $self, %args ) = @_;
 }
 
 #  xml      [REGEXP]...   print matching entries in XML format
@@ -368,6 +396,22 @@ sub prices {
 #  entry DATE PAYEE AMT   output a derived entry, based on the arguments
 sub entry {
     my ( $self, %args ) = @_;
+}
+
+sub _build_command {
+    my ( $self, $command, %args ) = @_;
+
+    my @cmd = ( $self->command );
+
+    push @cmd, '--init-file', $self->init_file if defined $self->init_file;
+
+    push @cmd, '--file', $self->file if defined $self->file;
+
+    push @cmd, $command;
+
+    # TODO: handle %args
+
+    return \@cmd;
 }
 
 __PACKAGE__->meta->make_immutable;
